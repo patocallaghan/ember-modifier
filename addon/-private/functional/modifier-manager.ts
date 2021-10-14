@@ -1,10 +1,10 @@
 import { capabilities } from '@ember/modifier';
-import { gte } from 'ember-compatibility-helpers';
+import { assert } from '@ember/debug';
 import { FunctionalModifier } from './modifier';
 import { ModifierArgs } from '../interfaces';
-import { consumeArgs, Factory, isFactory } from '../compat';
+import { consumeArgs } from '../compat';
 
-const MODIFIER_ELEMENTS = new WeakMap();
+const MODIFIER_ELEMENTS = new WeakMap<FunctionalModifier, Element>();
 const MODIFIER_TEARDOWNS: WeakMap<FunctionalModifier, unknown> = new WeakMap();
 
 function teardown(modifier: FunctionalModifier): void {
@@ -27,20 +27,14 @@ function setup(
 }
 
 class FunctionalModifierManager {
-  capabilities = capabilities(gte('3.22.0') ? '3.22' : '3.13');
+  capabilities = capabilities('3.22');
 
-  createModifier(
-    factoryOrClass: Factory<FunctionalModifier> | FunctionalModifier
-  ): FunctionalModifier {
-    const Modifier = isFactory(factoryOrClass)
-      ? factoryOrClass.class
-      : factoryOrClass;
-
+  createModifier(modifier: FunctionalModifier): FunctionalModifier {
     // This looks superfluous, but this is creating a new instance
     // of a function -- this is important so that each instance of the
     // created modifier can have its own state which is stored in
     // the MODIFIER_ELEMENTS and MODIFIER_TEARDOWNS WeakMaps
-    return (...args) => Modifier(...args);
+    return (...args) => modifier(...args);
   }
 
   installModifier(
@@ -49,23 +43,19 @@ class FunctionalModifierManager {
     args: ModifierArgs
   ): void {
     MODIFIER_ELEMENTS.set(modifier, element);
-
-    if (gte('3.22.0')) {
-      consumeArgs(args);
-    }
-
+    consumeArgs(args);
     setup(modifier, element, args);
   }
 
   updateModifier(modifier: FunctionalModifier, args: ModifierArgs): void {
     const element = MODIFIER_ELEMENTS.get(modifier);
+    assert(
+      'ember-modifier: function-based modifier was not installed correctly on its element before calling updateModifier. Please file a bug: <https://github.com/ember-modifier/ember-modifier/issues>',
+      !!element
+    );
 
     teardown(modifier);
-
-    if (gte('3.22.0')) {
-      consumeArgs(args);
-    }
-
+    consumeArgs(args);
     setup(modifier, element, args);
   }
 

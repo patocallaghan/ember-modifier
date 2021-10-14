@@ -1,33 +1,25 @@
 import { capabilities } from '@ember/modifier';
-import { gte } from 'ember-compatibility-helpers';
 import { set } from '@ember/object';
 import { destroy, registerDestructor } from '@ember/destroyable';
 
 import ClassBasedModifier from './modifier';
 import { ModifierArgs } from 'ember-modifier/-private/interfaces';
-import { consumeArgs, Factory, isFactory } from '../compat';
+import { consumeArgs } from '../compat';
 
 function destroyModifier(modifier: ClassBasedModifier): void {
-  modifier.willRemove();
   modifier.willDestroy();
 }
 
 export default class ClassBasedModifierManager {
-  capabilities = capabilities(gte('3.22.0') ? '3.22' : '3.13');
+  capabilities = capabilities('3.22');
 
   constructor(private owner: unknown) {}
 
   createModifier(
-    factoryOrClass:
-      | Factory<typeof ClassBasedModifier>
-      | typeof ClassBasedModifier,
+    ModifierClass: typeof ClassBasedModifier,
     args: ModifierArgs
   ): ClassBasedModifier {
-    const Modifier = isFactory(factoryOrClass)
-      ? factoryOrClass.class
-      : factoryOrClass;
-
-    const modifier = new Modifier(this.owner, args);
+    const modifier = new ModifierClass(this.owner, args);
 
     registerDestructor(modifier, destroyModifier);
 
@@ -41,9 +33,7 @@ export default class ClassBasedModifierManager {
   ): void {
     instance.element = element;
 
-    if (gte('3.22.0')) {
-      consumeArgs(args);
-    }
+    consumeArgs(args);
 
     instance.didReceiveArguments();
     instance.didInstall();
@@ -53,9 +43,7 @@ export default class ClassBasedModifierManager {
     // TODO: this should be an args proxy
     set(instance, 'args', args);
 
-    if (gte('3.22.0')) {
-      consumeArgs(args);
-    }
+    consumeArgs(args);
 
     instance.didUpdateArguments();
     instance.didReceiveArguments();
