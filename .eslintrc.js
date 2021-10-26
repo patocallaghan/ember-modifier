@@ -37,6 +37,7 @@ module.exports = {
         'blueprints/**/*.js',
         'config/**/*.js',
         'tests/dummy/config/**/*.js',
+        'babel.config.js',
       ],
       excludedFiles: [
         'addon/**',

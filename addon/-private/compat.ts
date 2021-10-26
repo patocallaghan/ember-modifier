@@ -23,7 +23,7 @@ export function isFactory<T>(
  * avoid introducing a breaking change until a suitable transition path is made
  * available.
  */
-export function consumeArgs({ positional, named }: ModifierArgs) {
+export function consumeArgs({ positional, named }: ModifierArgs): void {
   for (let i = 0; i < positional.length; i++) {
     positional[i];
   }
