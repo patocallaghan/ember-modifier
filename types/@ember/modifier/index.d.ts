@@ -2,7 +2,7 @@
 //
 // [docs]: https://github.com/emberjs/ember.js/issues/18967
 declare module '@ember/modifier' {
-  export function setModifierManager<Manager extends unknown = unknown>(
+  export function setModifierManager<Manager = unknown>(
     factory: (owner: unknown) => Manager,
     obj: object
   ): void;
