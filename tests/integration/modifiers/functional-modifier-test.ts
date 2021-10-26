@@ -1,13 +1,13 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, settled } from '@ember/test-helpers';
-import { TestContext as BaseContext } from 'ember-test-helpers';
+import { TestContext } from 'ember-test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { modifier } from 'ember-modifier';
 
 type ModifierReturn = ReturnType<typeof modifier>;
 
-interface TestContext extends BaseContext {
+interface Context extends TestContext {
   registerModifier(name: string, modifier: ModifierReturn): void;
   shouldRender?: boolean;
   isRendered?: boolean;
@@ -17,14 +17,14 @@ interface TestContext extends BaseContext {
 module('Integration | Modifiers | functional modifier', function (hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function (this: TestContext) {
+  hooks.beforeEach(function (this: Context) {
     this.registerModifier = (name, modifier) => {
       this.owner.register(`modifier:${name}`, modifier);
     };
   });
 
   module('args', () => {
-    test('it passes element as first argument', async function (this: TestContext, assert) {
+    test('it passes element as first argument', async function (this: Context, assert) {
       this.registerModifier(
         'songbird',
         modifier((element) => assert.equal(element.tagName, 'H1'))
@@ -33,7 +33,7 @@ module('Integration | Modifiers | functional modifier', function (hooks) {
       await render(hbs`<h1 {{songbird}}>Hello</h1>`);
     });
 
-    test('positional arguments are passed', async function (this: TestContext, assert) {
+    test('positional arguments are passed', async function (this: Context, assert) {
       this.registerModifier(
         'songbird',
         modifier((_, [a, b]) => {
@@ -45,7 +45,7 @@ module('Integration | Modifiers | functional modifier', function (hooks) {
       await render(hbs`<h1 {{songbird "1" "2"}}>Hey</h1>`);
     });
 
-    test('named arguments are passed', async function (this: TestContext, assert) {
+    test('named arguments are passed', async function (this: Context, assert) {
       this.registerModifier(
         'songbird',
         modifier((_, __, { a, b }) => {
@@ -59,7 +59,7 @@ module('Integration | Modifiers | functional modifier', function (hooks) {
   });
 
   module('setup/teardown', () => {
-    test('teardown method called when removed', async function (this: TestContext, assert) {
+    test('teardown method called when removed', async function (this: Context, assert) {
       let callCount = 0;
       this.shouldRender = true;
 
@@ -83,7 +83,7 @@ module('Integration | Modifiers | functional modifier', function (hooks) {
       assert.equal(callCount, 1);
     });
 
-    test('setup is invoked for each change', async function (this: TestContext, assert) {
+    test('setup is invoked for each change', async function (this: Context, assert) {
       let callCount = 0;
       this.value = 0;
 
@@ -103,7 +103,7 @@ module('Integration | Modifiers | functional modifier', function (hooks) {
       assert.equal(callCount, 2);
     });
 
-    test('teardown is invoked for each change', async function (this: TestContext, assert) {
+    test('teardown is invoked for each change', async function (this: Context, assert) {
       let callCount = 0;
       this.value = 0;
 
@@ -123,7 +123,7 @@ module('Integration | Modifiers | functional modifier', function (hooks) {
       assert.equal(callCount, 1);
     });
 
-    test('teardown is invoked for each modifier instance', async function (this: TestContext, assert) {
+    test('teardown is invoked for each modifier instance', async function (this: Context, assert) {
       const teardownCalls: string[] = [];
       this.isRendered = true;
 
