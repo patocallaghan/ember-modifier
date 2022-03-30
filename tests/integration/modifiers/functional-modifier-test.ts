@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, settled, TestContext } from '@ember/test-helpers';
+import { findAll, render, settled, TestContext } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { modifier } from 'ember-modifier';
 import { tracked } from '@glimmer/tracking';
@@ -88,7 +88,8 @@ module('Integration | Modifiers | functional modifier', function (hooks) {
 
       this.owner.register(
         'modifier:songbird',
-        modifier(() => {
+        modifier((_, [value]) => {
+          value;
           callCount++;
         })
       );
@@ -114,10 +115,13 @@ module('Integration | Modifiers | functional modifier', function (hooks) {
 
       this.owner.register(
         'modifier:songbird',
-        modifier(() => () => callCount++)
+        modifier((_, [value]) => {
+          value;
+          return () => callCount++;
+        })
       );
 
-      await render(hbs`<h1 {{songbird this.value}}>Hello</h1>`);
+      await render(hbs`<h1 {{songbird this.state.value}}>Hello</h1>`);
 
       assert.equal(callCount, 0);
 
@@ -137,12 +141,11 @@ module('Integration | Modifiers | functional modifier', function (hooks) {
       const state = (this.state = new State());
 
       this.owner.register(
-        `modifier:songbird}`,
-        modifier(
-          (_, [val]: [string]) =>
-            () =>
-              teardownCalls.push(val)
-        )
+        `modifier:songbird`,
+        modifier((_, [val]: [string]) => {
+          val;
+          () => teardownCalls.push(val);
+        })
       );
 
       await render(hbs`

@@ -156,57 +156,6 @@ module(
       ]);
     });
 
-    // TODO: remove at 4.0
-    module('using modify with legacy hooks', function () {
-      test('didInstall', function (assert) {
-        class WithDI extends Modifier {
-          didInstall(): void {
-            /* no op */
-          }
-          modify(): void {
-            /* no op */
-          }
-        }
-
-        assert.throws(
-          () => new WithDI({}, { named: {}, positional: [] }),
-          'throws'
-        );
-      });
-
-      test('didReceiveArguments', function (assert) {
-        class WithDRA extends Modifier {
-          didReceiveArguments(): void {
-            /* no op */
-          }
-          modify(): void {
-            /* no op */
-          }
-        }
-
-        assert.throws(
-          () => new WithDRA({}, { named: {}, positional: [] }),
-          'throws'
-        );
-      });
-
-      test('didUpdateArguments', function (assert) {
-        class WithDUA extends Modifier {
-          didUpdateArguments(): void {
-            /* no op */
-          }
-          modify(): void {
-            /* no op */
-          }
-        }
-
-        assert.throws(
-          () => new WithDUA({}, { named: {}, positional: [] }),
-          'throws'
-        );
-      });
-    });
-
     module('service injection', function () {
       test('can participate in ember dependency injection', async function (assert) {
         let called = false;
